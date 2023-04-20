@@ -3,8 +3,17 @@ from django.http import HttpResponse, Http404, JsonResponse
 from .models import Tweet
 
 # Create your views here.
+def tweetlist_view(request, *args, **kwargs):
+    queryset = Tweet.objects.all()
+    tweets_list = [{"id": qs.id, "content":qs.content} for qs in queryset]
+    data = {
+        "response": tweets_list
+    }
+    return JsonResponse(data)
+
+
 def home_view(request, *args, **kwargs):
-    return HttpResponse("<h1>Hello World, </h1>")
+    return render(request, "pages/home.html")
 
 def tweetdetail_view(request, tweet_id, *args, **kwargs):
     data = {}
