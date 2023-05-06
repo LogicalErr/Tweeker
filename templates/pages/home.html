@@ -9,7 +9,7 @@
 
 <div class="row mb-3">
   <div class="col-md-4 col-10 mx-auto">
-    <form action="create-tweet/" method="POST" class="form">
+    <form action="create-tweet/" id="tweet-create-form" method="POST" class="form">
       {% csrf_token %}
       <input type="hidden" value="/" name="next" />
       <textarea class="form-control" name="content" placeholder="Your tweet..."></textarea>
@@ -23,37 +23,42 @@
 </div>
 
 <script>
-  const tweetsElement = document.getElementById('tweets')
-  const xhr = new XMLHttpRequest()
-  const method = 'GET'
-  const url = '/tweets'
-  const responseType = 'json'
-
-  xhr.responseType = responseType
-  xhr.open(method, url)
-  xhr.onload = function() {
-    const serverResponse = xhr.response
-    const listedItems = serverResponse.response
-    let finalTweetStr = ""
-    for (let i=0; i < listedItems.length; i++)
-    {
-      let currentItem = formatTweetElement(listedItems[i])
-      finalTweetStr += currentItem
-    }
-  tweetsElement.innerHTML = finalTweetStr
-    
+  const tweetCreateFormElement = document.getElementById("tweet-create-form")
+  tweetCreateFormElement.addEventListener("submit", handleTweetCreateFormDidSubmit)
+  function handleTweetCreateFormDidSubmit(event) {
+    event.preventDefault()
+    console.log(event)
   }
-  xhr.send()
 
+
+  const tweetsElement = document.getElementById('tweets')
+  function loadTweets(tweetsElement) {
+    const xhr = new XMLHttpRequest()
+    const method = 'GET'
+    const url = '/tweets'
+    const responseType = 'json'
+    xhr.responseType = responseType
+    xhr.open(method, url)
+    xhr.onload = function() {
+      const serverResponse = xhr.response
+      const listedItems = serverResponse.response
+      let finalTweetStr = ""
+      for (let i=0; i < listedItems.length; i++)
+      {
+        let currentItem = formatTweetElement(listedItems[i])
+        finalTweetStr += currentItem
+      }
+      tweetsElement.innerHTML = finalTweetStr
+    }
+    xhr.send()
+  }
   function handleDidLike(tweet_id, currentCount){
     console.log(tweet_id, currentCount)
   }
-
   function LikeBtn(tweet){
     return "<button class='btn btn-primary' onclick=handleDidLike(" + 
     tweet.id + "," + tweet.likes + ")>" + tweet.likes + " Likes</button>"
   }
-
   function formatTweetElement(tweet){
     let formatedTweet = "<div class='col-12 col-md-10 mx-auto border rounded py-3 mb-4' id='tweet-" + tweet.id 
     + "'>" + "<p>Tweet: " + tweet.content + 
@@ -61,5 +66,11 @@
       "</div></div>"
     return formatedTweet
   }
+  loadTweets(tweetsElement)
+
+
+
+
 </script>
+
 {% endblock content %}
