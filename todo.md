@@ -4,6 +4,7 @@
         -> Image
     -> Delete
     -> Retweeting
+    -> Like Tweets
 
 2. Users
     -> Register
