@@ -1,10 +1,15 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse, Http404, JsonResponse
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.conf import settings
+from django.http import JsonResponse
 from .models import Tweet
 import random
 from .forms import TweetForm
 
 # Create your views here.
+
+ALLOWED_HOSTS = settings.ALLOWED_HOSTS
+
 def tweetlist_view(request, *args, **kwargs):
     queryset = Tweet.objects.all()
     tweets_list = [{"id": qs.id, "content":qs.content, "likes": random.randint(0, 99999)} for qs in queryset]
@@ -19,7 +24,7 @@ def tweet_create_view(request, *args, **kwargs):
     next_url = request.POST.get('next') or None
     if form.is_valid():
         form.save()
-        if next_url != None:
+        if next_url != None and url_has_allowed_host_and_scheme(next_url, allowed_hosts=ALLOWED_HOSTS):
             return redirect(next_url)
         form = TweetForm()
     return render(request, 'components/form.html', context={"form": form})
