@@ -24,8 +24,8 @@ def tweet_create_view(request, *args, **kwargs):
     next_url = request.POST.get('next') or None
     if form.is_valid():
         form.save()
-        if next_url != None and url_has_allowed_host_and_scheme(next_url, allowed_hosts=ALLOWED_HOSTS):
-            return redirect(next_url)
+        if request.headers.get("x-requested-with") == "XMLHttpRequest":
+            return JsonResponse({}, status=201)
         form = TweetForm()
     return render(request, 'components/form.html', context={"form": form})
 
