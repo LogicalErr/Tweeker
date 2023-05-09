@@ -32,19 +32,23 @@
     const url = myForm.getAttribute("action")
     const method = myForm.getAttribute("method")
     const xhr = new XMLHttpRequest()
+    const responseType = 'json'
+    xhr.responseType = responseType
     xhr.open(method, url)
     xhr.setRequestHeader("HTTP_X_REQUESTED_WITH", "XMLHttpRequest")
     xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest")
     xhr.onload = function() {
-      const serverResponse = xhr.response
-      const tweetsElement = document.getElementById("tweets")
-      loadTweets(tweetsElement)
+      if (xhr.status === 201) {
+        const newTweet = xhr.response
+        const newTweetElement = formatTweetElement(newTweet)
+        console.log(newTweetElement)  
+      }
     }
     xhr.send(myFromData)
   }
 
 
-  const tweetsElement = document.getElementById('tweets')
+  const tweetsContainerElement = document.getElementById('tweets')
   function loadTweets(tweetsElement) {
     const xhr = new XMLHttpRequest()
     const method = 'GET'
@@ -79,7 +83,7 @@
       "</div></div>"
     return formatedTweet
   }
-  loadTweets(tweetsElement)
+  loadTweets(tweetsContainerElement)
 
 
 

@@ -12,7 +12,7 @@ ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
 def tweetlist_view(request, *args, **kwargs):
     queryset = Tweet.objects.all()
-    tweets_list = [{"id": qs.id, "content":qs.content, "likes": random.randint(0, 99999)} for qs in queryset]
+    tweets_list = [qs.serialize() for qs in queryset]
     data = {
         "isUser": False, 
         "response": tweets_list,
@@ -23,9 +23,9 @@ def tweet_create_view(request, *args, **kwargs):
     form = TweetForm(request.POST or None)
     next_url = request.POST.get('next') or None
     if form.is_valid():
-        form.save()
+        obj = form.save()
         if request.headers.get("x-requested-with") == "XMLHttpRequest":
-            return JsonResponse({}, status=201)
+            return JsonResponse(obj.serialize(), status=201)
         form = TweetForm()
     return render(request, 'components/form.html', context={"form": form})
 
