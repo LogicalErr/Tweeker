@@ -6,4 +6,5 @@ urlpatterns = [
     path("create-tweet/", views.tweet_create_view, name="create tweet"),
     path("tweets/<int:tweet_id>", views.tweet_detail_view, name="tweet detail View"),
     path("api/tweets/<int:tweet_id>/delete", views.tweet_delete_view, name="tweet delete View"),
+    path("api/tweets/action", views.tweet_action_view, name="tweet action View"),
 ]
