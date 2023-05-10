@@ -19,16 +19,6 @@ def tweet_list_view(request, *args, **kwargs):
     serializer = TweetSerializer(queryset, many=True)
     return Response(serializer.data)
 
-
-def tweet_list_view_pure_django(request, *args, **kwargs):
-    queryset = Tweet.objects.all()
-    tweets_list = [qs.serialize() for qs in queryset]
-    data = {
-        "isUser": False, 
-        "response": tweets_list,
-    }
-    return JsonResponse(data)
-
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 # @authentication_classes([SessionAuthentication])
@@ -39,6 +29,51 @@ def tweet_create_view(request, *args, **kwargs):
         return Response(serializer.data, status=201)
     return Response({}, status=400)
 
+@api_view(["GET"])
+def tweet_detail_view(request, tweet_id, *args, **kwargs):
+    obj = Tweet.objects.get(pk=tweet_id) or None
+    if not obj:
+        return Response({}, status=404)
+    serializer = TweetSerializer(obj)
+    return Response(serializer.data)
+
+@api_view(["DELETE", "POST"])
+@permission_classes([IsAuthenticated])
+def tweet_delete_view(request, tweet_id, *args, **kwargs):
+    obj = Tweet.objects.get(pk=tweet_id) or None
+    if not obj:
+        return Response({"Tweet not found!"}, status=404)
+    elif request.user != obj.user:
+        return Response({"message": "You can't delete this tweet"}, status=401)
+    obj.delete()
+    return Response({}, status=204)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def home_view(request, *args, **kwargs):
+    return render(request, "pages/home.html")
+
+def tweet_list_view_pure_django(request, *args, **kwargs):
+    queryset = Tweet.objects.all()
+    tweets_list = [qs.serialize() for qs in queryset]
+    data = {
+        "isUser": False, 
+        "response": tweets_list,
+    }
+    return JsonResponse(data)
 
 def tweet_create_view_pure_django(request, *args, **kwargs):
     user = request.user
@@ -59,19 +94,6 @@ def tweet_create_view_pure_django(request, *args, **kwargs):
             return JsonResponse(form.errors, status=400)
     form = TweetForm()
     return render(request, 'components/form.html', context={"form": form})
-
-
-def home_view(request, *args, **kwargs):
-    return render(request, "pages/home.html")
-
-
-@api_view(["GET"])
-def tweet_detail_view(request, tweet_id, *args, **kwargs):
-    obj = Tweet.objects.get(pk=tweet_id)
-    if not obj:
-        Response({}, status=404)
-    serializer = TweetSerializer(obj)
-    return Response(serializer.data)
 
 def tweet_detail_view_pure_django(request, tweet_id, *args, **kwargs):
     data = {}
