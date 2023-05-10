@@ -5,7 +5,9 @@ from .models import Tweet
 from .forms import TweetForm
 from .serializers import TweetSerializer
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import SessionAuthentication
 
 # Create your views here.
 
@@ -28,6 +30,8 @@ def tweet_list_view_pure_django(request, *args, **kwargs):
     return JsonResponse(data)
 
 @api_view(["POST"])
+@permission_classes([IsAuthenticated])
+# @authentication_classes([SessionAuthentication])
 def tweet_create_view(request, *args, **kwargs):
     serializer = TweetSerializer(data = request.POST)
     if serializer.is_valid(raise_exception=True):
