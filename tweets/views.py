@@ -3,11 +3,10 @@ from django.conf import settings
 from django.http import JsonResponse
 from .models import Tweet
 from .forms import TweetForm
-from .serializers import TweetSerializer
+from .serializers import TweetSerializer, TweetActionSerializer
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.authentication import SessionAuthentication
 
 # Create your views here.
 
@@ -48,9 +47,27 @@ def tweet_delete_view(request, tweet_id, *args, **kwargs):
     obj.delete()
     return Response({}, status=204)
 
-
-
-
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def tweet_action_view(request, *args, **kwargs):
+    '''
+        actions are: like, unlike, retweet
+    '''
+    serializer = TweetActionSerializer(request.POST)
+    if serializer.is_valid(raise_exception=True):
+        data = serializer.validated_data
+        tweet_id = data.get("id")
+        action = data.get("action")
+        obj = Tweet.objects.get(pk=tweet_id) or None
+        if not obj:
+            return Response({"Tweet not found!"}, status=404)
+        if action == "like":
+            obj.likes.add(request.user)
+        elif action == "unlike":
+            obj.likes.remove(request.user)        
+        elif action == "retweet":
+            pass 
+        return Response({"action is succesfully done."}, status=200)
 
 
 

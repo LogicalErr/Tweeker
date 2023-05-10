@@ -3,7 +3,7 @@ from .models import Tweet
 from django.conf import settings 
 
 MAX_TWEET_LENGTH = settings.MAX_TWEET_LENGTH
-
+TWEET_ACTION_OPTIONS = settings.TWEET_ACTION_OPTIONS
 
 class TweetSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,3 +14,14 @@ class TweetSerializer(serializers.ModelSerializer):
         if len(value) > MAX_TWEET_LENGTH:
             raise serializers.ValidationError("This tweet is more than {} characters".format(MAX_TWEET_LENGTH))
         return value
+    
+class TweetActionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    action = serializers.CharField()
+    
+    def validate_action(self, value):
+        value = value.lower().strip()
+        if value in TWEET_ACTION_OPTIONS:
+            return value
+        else:
+            raise serializers.ValidationError("action not valid")
