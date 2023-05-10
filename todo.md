@@ -5,7 +5,7 @@
             -> Image -> media storage server
         -> Delete
         -> Retweeting
-        -> Like Tweets
+        -> Like or Onlike Tweets
 
 2. Users
     -> Register
