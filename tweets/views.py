@@ -3,7 +3,11 @@ from django.conf import settings
 from django.http import JsonResponse
 from .models import Tweet
 from .forms import TweetForm
-from .serializers import TweetSerializer, TweetActionSerializer
+from .serializers import (
+    TweetSerializer, 
+    TweetActionSerializer,
+    TweetCreateSerializer,
+)
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework.permissions import IsAuthenticated
@@ -22,7 +26,7 @@ def tweet_list_view(request, *args, **kwargs):
 @permission_classes([IsAuthenticated])
 # @authentication_classes([SessionAuthentication])
 def tweet_create_view(request, *args, **kwargs):
-    serializer = TweetSerializer(data = request.POST)
+    serializer = TweetCreateSerializer(data = request.POST)
     if serializer.is_valid(raise_exception=True):
         serializer.save(user = request.user)
         return Response(serializer.data, status=201)
@@ -58,6 +62,7 @@ def tweet_action_view(request, *args, **kwargs):
         data = serializer.validated_data
         tweet_id = data.get("id")
         action = data.get("action")
+        content = data.get("content")
         obj = Tweet.objects.get(pk=tweet_id) or None
         if not obj:
             return Response({"Tweet not found!"}, status=404)
@@ -68,7 +73,10 @@ def tweet_action_view(request, *args, **kwargs):
         elif action == "unlike":
             obj.likes.remove(request.user)        
         elif action == "retweet":
-            pass 
+            parent_obj = obj
+            new_tweet = Tweet.objects.create(user=request.user, parent=parent_obj, content=content)
+            serializer = TweetSerializer(new_tweet)
+            return Response(serializer.data, status=200)
         return Response({"action is succesfully done."}, status=200)
 
 

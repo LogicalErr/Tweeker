@@ -5,6 +5,8 @@
             -> Image -> media storage server
         -> Delete
         -> Retweeting
+            -> Readonly serializer
+            -> Createonly serializer
         -> Like or Onlike Tweets
 
 2. Users
