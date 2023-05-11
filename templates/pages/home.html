@@ -9,7 +9,7 @@
 
 <div class="row mb-3">
   <div class="col-md-4 col-10 mx-auto">
-    <form action="create-tweet/" id="tweet-create-form" method="POST" class="form">
+    <form action="api/tweets/create/" id="tweet-create-form" method="POST" class="form">
       {% csrf_token %}
       <div class="d-none alert alert-danger" id="tweet-create-form-error"></div>
       <input type="hidden" value="/" name="next" />
@@ -24,6 +24,10 @@
 </div>
 
 <script>
+  const tweetsContainerElement = document.getElementById('tweets')
+  const tweetCreateFormElement = document.getElementById("tweet-create-form")
+  tweetCreateFormElement.addEventListener("submit", handleTweetCreateFormDidSubmit)
+
   function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -46,10 +50,6 @@
       myErrorDiv.innerText = msg
     }
   }
-
-
-  const tweetCreateFormElement = document.getElementById("tweet-create-form")
-  tweetCreateFormElement.addEventListener("submit", handleTweetCreateFormDidSubmit)
   function handleTweetCreateFormDidSubmit(event) {
     event.preventDefault()
     const myForm = event.target
@@ -95,13 +95,10 @@
     }
     xhr.send(myFromData)
   }
-
-
-  const tweetsContainerElement = document.getElementById('tweets')
   function loadTweets(tweetsElement) {
     const xhr = new XMLHttpRequest()
     const method = 'GET'
-    const url = '/tweets'
+    const url = 'api/tweets/'
     const responseType = 'json'
     xhr.responseType = responseType
     xhr.open(method, url)

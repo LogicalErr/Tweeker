@@ -24,7 +24,6 @@ def tweet_list_view(request, *args, **kwargs):
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-# @authentication_classes([SessionAuthentication])
 def tweet_create_view(request, *args, **kwargs):
     serializer = TweetCreateSerializer(data = request.POST)
     if serializer.is_valid(raise_exception=True):
@@ -71,58 +70,18 @@ def tweet_action_view(request, *args, **kwargs):
             serializer = TweetSerializer(obj)
             return Response(serializer.data, status=200)
         elif action == "unlike":
-            obj.likes.remove(request.user)        
+            obj.likes.remove(request.user)
+            serializer = TweetSerializer(obj)
+            return Response(serializer.data, status=200)            
         elif action == "retweet":
             parent_obj = obj
             new_tweet = Tweet.objects.create(user=request.user, parent=parent_obj, content=content)
             serializer = TweetSerializer(new_tweet)
-            return Response(serializer.data, status=200)
+            return Response(serializer.data, status=201)
         return Response({"action is succesfully done."}, status=200)
-
-
-
-
-
-
-
-
-
-
-
 
 def home_view(request, *args, **kwargs):
     return render(request, "pages/home.html")
-
-def tweet_list_view_pure_django(request, *args, **kwargs):
-    queryset = Tweet.objects.all()
-    tweets_list = [qs.serialize() for qs in queryset]
-    data = {
-        "isUser": False, 
-        "response": tweets_list,
-    }
-    return JsonResponse(data)
-
-def tweet_create_view_pure_django(request, *args, **kwargs):
-    user = request.user
-    if not request.user.is_authenticated:
-        user = None
-        if request.headers.get("x-requested-with") == "XMLHttpRequest":
-            return JsonResponse({}, status=401)
-        return redirect(settings.LOGIN_URL)
-    form = TweetForm(request.POST or None)
-    if form.is_valid():
-        obj = form.save(commit=False)
-        obj.user = user
-        obj.save()
-        if request.headers.get("x-requested-with") == "XMLHttpRequest":
-            return JsonResponse(obj.serialize(), status=201)
-    if form.errors:
-        if request.headers.get("x-requested-with") == "XMLHttpRequest":
-            return JsonResponse(form.errors, status=400)
-    form = TweetForm()
-    return render(request, 'components/form.html', context={"form": form})
-
-def tweet_detail_view_pure_django(request, tweet_id, *args, **kwargs):
     data = {}
     try: 
         obj = Tweet.objects.get(id= tweet_id)
