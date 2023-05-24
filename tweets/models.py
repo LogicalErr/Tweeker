@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-import random
 
 
 # Create your models here.
@@ -9,7 +8,7 @@ class TweetLike(models.Model):
     tweet = models.ForeignKey("Tweet", on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now_add=True)
 class Tweet(models.Model):
-    parent = models.ForeignKey("self", null=True, on_delete=models.SET_NULL)
+    parent = models.ForeignKey("self", null=True, on_delete=models.SET_NULL, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE) # one-to-many a user can have many tweets
     content = models.TextField(blank=True, null=True)
     image = models.FileField(upload_to='images/', blank=True, null=True)
@@ -17,11 +16,10 @@ class Tweet(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     class Meta:
         ordering = ["-id"]
-        
+    
     @property
     def is_retweet(self):
-        return self.parent != None 
-        
+        return self.parent != None         
     def __str__(self):
         return self.content
     

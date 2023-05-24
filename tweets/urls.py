@@ -13,3 +13,13 @@ urlpatterns = [
     path("<int:tweet_id>/", views.tweet_detail_view, name="tweet detail View"),
     path("<int:tweet_id>/delete/", views.tweet_delete_view, name="tweet delete View"),
 ]
+
+
+
+
+
+
+
+
+
+
