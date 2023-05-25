@@ -16,16 +16,22 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from tweets.views import home_view
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import TemplateView
+from accounts.views import (
+    login_view, 
+    logout_view,
+    register_view
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", home_view, name="home view"),
-    path('api/tweets/', include("tweets.urls")),
-    path("react/",TemplateView.as_view(template_name= 'react_via_dj.html')),
+    path("", include("tweets.urls")),
+    path("login/", login_view),
+    path("logout/", logout_view),
+    path("register/", register_view),
+    path("profile/", include("profiles.urls")),
+    
 ]
 
 if settings.DEBUG:

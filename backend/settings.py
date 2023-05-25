@@ -39,8 +39,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # internal
+    # internal apps
     'tweets.apps.TweetsConfig',
+    'accounts.apps.AccountsConfig',
+    'profiles.apps.ProfilesConfig',
     # third patry
     'rest_framework',
     'corsheaders',
@@ -142,7 +144,7 @@ DEFAULT_AUTHENTICATION_CLASSES = [
 ]
 if DEBUG:
     DEFAULT_RENDERER_CLASSES.append('rest_framework.renderers.BrowsableAPIRenderer')
-    DEFAULT_AUTHENTICATION_CLASSES.append('tweets.rest_api.dev.DevAuthentication')
+    # DEFAULT_AUTHENTICATION_CLASSES.append('tweets.rest_api.dev.DevAuthentication')
     
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': DEFAULT_AUTHENTICATION_CLASSES,
