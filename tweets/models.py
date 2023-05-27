@@ -9,7 +9,7 @@ class TweetLike(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 class Tweet(models.Model):
     parent = models.ForeignKey("self", null=True, on_delete=models.SET_NULL, blank=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE) # one-to-many a user can have many tweets
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tweets") # one-to-many a user can have many tweets
     content = models.TextField(blank=True, null=True)
     image = models.FileField(upload_to='images/', blank=True, null=True)
     likes = models.ManyToManyField(User, related_name="tweet_user", blank=True, through=TweetLike)
@@ -20,6 +20,6 @@ class Tweet(models.Model):
     @property
     def is_retweet(self):
         return self.parent != None         
-    def __str__(self):
-        return self.content
+    # def __str__(self):
+    #     return self.content
     

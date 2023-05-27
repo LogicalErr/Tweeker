@@ -30,8 +30,9 @@ urlpatterns = [
     path("login/", login_view),
     path("logout/", logout_view),
     path("register/", register_view),
-    path("profile/", include("profiles.urls")),
-    
+    path("profiles/", include("profiles.urls")),
+    path("api/profiles/", include("profiles.api.urls")),
+        
 ]
 
 if settings.DEBUG:
