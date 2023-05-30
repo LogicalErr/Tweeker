@@ -8,6 +8,7 @@ from .serializers import (
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.pagination import PageNumberPagination
 
 # Create your views here.
 
@@ -29,9 +30,8 @@ def tweet_list_view(request, *args, **kwargs):
     queryset = Tweet.objects.all()
     username = request.GET.get('username')
     if username:
-        queryset = queryset.filter(user__username__iexact=username)
-    serializer = TweetSerializer(queryset, many=True)
-    return Response(serializer.data)
+        queryset = queryset.by_username(username)
+    return get_paginated_queryset_response(queryset, request)
 
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
@@ -83,3 +83,17 @@ def tweet_action_view(request, *args, **kwargs):
             serializer = TweetSerializer(new_tweet)
             return Response(serializer.data, status=201)
         return Response({"action is succesfully done."}, status=200)
+
+def get_paginated_queryset_response(queryset, request):
+    paginator = PageNumberPagination()
+    paginator.page_size = 10
+    paginate_qs = paginator.paginate_queryset(queryset, request)
+    serializer = TweetSerializer(paginate_qs, many=True)
+    return paginator.get_paginated_response(serializer.data)
+
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def tweet_feed_view(request, *args, **kwargs):
+    user = request.user
+    queryset = Tweet.objects.feed(user)
+    return get_paginated_queryset_response(queryset, request)
