@@ -3,7 +3,8 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import { TweetsComponent, TweetDetailComponent } from './tweets';
+import { TweetsComponent, TweetDetailComponent, FeedComponent } from './tweets';
+import { ProfileBadgeComponent } from './profiles';
 
 const appEl = document.getElementById('root')
 if (appEl){
@@ -15,8 +16,19 @@ const tweetsEl = document.getElementById('tweeker')
 const e = React.createElement
 if (tweetsEl){
   const root = ReactDOM.createRoot(tweetsEl)
-  root.render(e(TweetsComponent, tweetsEl.dataset))
+  root.render(
+    e(TweetsComponent, tweetsEl.dataset)
+    )
 }
+
+const tweetFeedEl = document.getElementById('tweeker-feed')
+if (tweetFeedEl){
+  const root = ReactDOM.createRoot(tweetFeedEl)
+  root.render(
+    e(FeedComponent, tweetFeedEl.dataset)
+    )
+}
+
 
 const tweetDetailEl = document.querySelectorAll(".tweeker-detail")
 tweetDetailEl.forEach(container => {
@@ -25,6 +37,12 @@ tweetDetailEl.forEach(container => {
     e(TweetDetailComponent, container.dataset))
 })
 
+const userProfileBadgeEl = document.querySelectorAll(".tweeker-profile-badge")
+userProfileBadgeEl.forEach(container => {
+  const root = ReactDOM.createRoot(container)
+  root.render(
+    e(ProfileBadgeComponent, container.dataset))
+})
 
 
 // const root = ReactDOM.createRoot(document.getElementById('root'));

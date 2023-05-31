@@ -2,5 +2,10 @@
 
 
 {% block content %}
-    <div id="tweeker" data-username="{{username}}" data-can-tweet="false"></div>
+    <div class="tweeker-profile-badge" data-username="{{ username }}"></div>
+    <div 
+        id="tweeker" 
+        data-username="{{username}}" 
+        data-can-tweet="false">
+    </div>
 {% endblock content %}
