@@ -14,7 +14,7 @@ export function TweetsComponent(props){
         setNewTweets(newTweet)
     }
     return <div className={props.className}>
-                {canTweet === true && <TweetCreate didTweet={handleNewTweet} className="col-12 mb-3" />}
+                {canTweet === true && <TweetCreate didTweet={handleNewTweet} className="col-lg-8 mx-auto pt-4 mb-3" />}
                 <TweetsList newTweets={newTweets} {...props}/>
             </div>
 }
@@ -28,7 +28,7 @@ export function FeedComponent(props){
         setNewTweets(newTweet)
     }
     return <div className={props.className}>
-                {canTweet === true && <TweetCreate didTweet={handleNewTweet} className="col-12 mb-3" />}
+                {canTweet === true && <TweetCreate didTweet={handleNewTweet} className="col-lg-8 mx-auto pt-4 mb-3" />}
                 <FeedList newTweets={newTweets} {...props}/>
             </div>
 }
