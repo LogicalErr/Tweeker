@@ -31,7 +31,7 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div class="d-none tweeker-profile-badge" data-username="justin"></div>
     <div class="d-none" id="tweeker-feed"></div>
-    <div id="tweet-container"></div>
+    <div id="d-none tweet-container"></div>
     <div id="tweeker" data-username="justin" data-can-tweet="true"></div>
     <!--
       This HTML file is a template.
@@ -47,14 +47,14 @@
       var path = window.location.pathname
       var idRegex = /(?<tweetid>\d+)/
       var match = path.match(idRegex)
+      console.log(match)
       if (match){
         var tweetId = match.groups.tweetid
         var tweekerEl = document.getElementById("tweeker")
         tweekerEl.className = "d-none"
-        var tweetEl = `<div class="tweeker-detail" data-tweet-id=${tweetId} data-class-name="my-5 py-5 border bg-white text-dark"></div>`
+        var tweetEl = `<div class="tweeker-detail" data-tweet-id=${tweetId} data-class-name="my-5 col-8 mx-auto col-md-6 py-5 bg-dark text-white"></div>`
         var mainContainer = document.getElementById("tweet-container")
         mainContainer.innerHTML = tweetEl
-        console.log(mainContainer)
       }      
     </script>
   </body>

@@ -16,14 +16,14 @@ export function UserDisplay(props){
     if (user !== undefined){
         return <React.Fragment>
                     {nameDisplay}
-                    <span className="text-secondary">{hideLink === true ? `@${user.username}` : <UserLink username={user.username}>{user ? `@${user.username}` : ""}</UserLink>}</span>
+                    <span className="text-secondary">{hideLink === true ? `@${user.username}` : <UserLink username={user.username}>{user ? `@${user.username}` : ""}</UserLink>}</span>                        
                 </React.Fragment>
     }
 }
 
 export function UserPicture(props){
     const {user, hideLink} = props
-    const userIdSpan = <span className="mx-2 py-2 px-3 rounded-circle bg-secondary text-dark">{user.username[0]}</span>
+    const userIdSpan = <span className="mx-2 py-2 px-3 rounded-circle bg-primary text-light">{user.username[0]}</span>
 
     return hideLink === true ? userIdSpan : <UserLink username={user.username}>{userIdSpan}</UserLink>
 }

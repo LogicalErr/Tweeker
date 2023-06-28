@@ -35,6 +35,7 @@ export function FeedComponent(props){
 
 export function TweetDetailComponent(props){    
     const {tweetId} = props
+    console.log(props.className)
     const [didLookup, setDidLookup] = useState(false)
     const [tweet, setTweet] = useState(null)
     const handleBackendLookup = (response, status) => {

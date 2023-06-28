@@ -13,7 +13,7 @@ function ParentTweet(props){
 export function Tweet(props){
     const {tweet, didRetweet, hideActions, isRetweet, retweeter} = props
     const [actionTweet, setActionTweet] = useState(props.tweet ? props.tweet : null)
-    let className = props.className ? props.className : "col-10 mx-auto col-md-6"
+    let className = props.className ? props.className : "col-8 mx-auto col-md-6"
     className = isRetweet === true ? `${className} p-2 my-2 col-6` : className
     const path = window.location.pathname
     const match = path.match(/(?<tweetid>\d+)/)
@@ -53,10 +53,10 @@ export function Tweet(props){
                                 <React.Fragment>
                                     <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} action={{type:"like", display:"Likes"}} />
                                     <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} action={{type:"unlike", display:"Unlike"}} />
-                                    <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} className="btn btn-outline-success" action={{type:"retweet", display:"Retweet"}} />
+                                    <ActionBtn tweet={actionTweet} didPerformAction={handlePerformAction} className="btn btn-outline-success text-white" action={{type:"retweet", display:"Retweet"}} />
                                 </React.Fragment>
                             }
-                                {isDetail === true ? null : <button className="btn btn-outline-primary btn-sm" onClick={handleLink}>View</button>}
+                                {isDetail === true ? null : <button className="btn btn-outline-primary text-white btn-sm" onClick={handleLink}>View</button>}
                         </div>
                     </div>
                 </div>

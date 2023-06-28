@@ -2,14 +2,16 @@
 
 
 {% block content %}
-    <div class="col-10 col-md-4 mx-auto">
-        <h1>{{ title }}</h1>
-        
-        {% if description %}
-            <p> {{description}} </p>
-        {% endif %}
-            
-        {% include 'components/form.html' with form=form btn_lable=btn_lable %}
+    <div class="col-8 col-md-4 mx-auto rounded text-white">
+            <h1>{{ title }}</h1>
+            {% if description %}
+                <p> {{description}} </p>
+            {% endif %}
+            {% include 'components/form.html' with form=form btn_lable=btn_lable %}
+            {% if title == "Login" %}
+                <a href="{% url 'accounts:register_view' %}" class="text-secondary"><span>Don't have an account? Register now</span></a>
+            {% elif title == "Registration" %}
+                <a href="{% url 'accounts:login_view' %}" class="text-secondary"><span>have an account? Login</span></a>
+            {% endif %}
     </div>
 {% endblock content %}
-    

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models import Q
+from itertools import chain
 
 
 # Create your models here.
@@ -17,10 +18,16 @@ class TweetQuerySet(models.QuerySet):
         followed_user_id = []
         if profiles_exist:
             followed_user_id = user.following.values_list("user__id", flat=True)
-        return self.filter(
-            Q(user__id__in= followed_user_id) | 
-            Q(user = user)
-            ).distinct().order_by("-timestamp")
+        feed_tweets = self.filter(
+                                            Q(user__id__in= followed_user_id) | 
+                                            Q(user = user)
+                                            ).distinct().order_by("-timestamp")
+        other_tweets = Tweet.objects.exclude(
+                                            Q(user__id__in= followed_user_id) | 
+                                            Q(user = user)
+                                            ).distinct().order_by("-timestamp")
+        response_tweets = list(chain(feed_tweets, other_tweets)) # First you see tweets of users that you follow, and then you see other users' tweets 
+        return response_tweets
 class TweetManager(models.Manager):
     def get_queryset(self, *args, **kwargs):
         return TweetQuerySet(self.model, using=self._db)

@@ -23,7 +23,6 @@ if (tweetFeedEl){
     )
 }
 
-
 const tweetDetailEl = document.querySelectorAll(".tweeker-detail")
 tweetDetailEl.forEach(container => {
   const root = ReactDOM.createRoot(container)

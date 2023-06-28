@@ -18,8 +18,8 @@ class Profile(models.Model):
     updated = models.DateTimeField(auto_now=True)
     followers = models.ManyToManyField(User, related_name="following", blank=True)
     
-    def __str__(self) -> str:
-        return self.user
+    # def __str__(self) -> str:
+    #     return self.user
     
 def user_did_save(sender, instance, created, *args, **kwargs):
     if created:

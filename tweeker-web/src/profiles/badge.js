@@ -14,13 +14,15 @@ function ProfileBadge(props) {
             didFollowToggle(currentVerb)
         }
     } 
-    return user ? <div>
-        <UserPicture user={user} hideLink/>
-        <p><UserDisplay user={user} includeFullName hideLink/></p>
-        <p><DisplayCount>{user.follower_count}</DisplayCount> {user.follower_count === 1 ? "follower" : "followers"}</p>
-        <p><DisplayCount>{user.following_count}</DisplayCount> following</p>
-        {user.location ? <p>location: {user.location}</p> : null}
-        {user.bio ? <p>bio: {user.bio}</p> : null}
+    return user ? <div className='text-secondary m-5'>
+            <UserPicture user={user} hideLink/>
+            <span><UserDisplay user={user} includeFullName hideLink/></span>
+            <div className='mx-5 my-3'>
+                <p><DisplayCount>{user.follower_count}</DisplayCount> {user.follower_count === 1 ? "follower" : "followers"}</p>
+                <p><DisplayCount>{user.following_count}</DisplayCount> following</p>
+                {user.location ? <p>location: {user.location}</p> : null}
+                {user.bio ? <p>bio: {user.bio}</p> : null}
+            </div>
         <button className='btn btn-primary' onClick={handleFollowToggle}>{currentVerb}</button>
         </div> : null
 }

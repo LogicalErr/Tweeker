@@ -22,7 +22,7 @@ export function TweetCreate(props){
     return <div className={props.className}>
                 <form onSubmit={handleSubmit}>
                 <textarea ref={textAreaRef} required={true} className="form-control" name="tweet"></textarea>
-                <button type="submit" className="btn btn-primary my-3">Tweet</button>
+                <button type="submit" className="btn btn-outline-primary text-white my-3 px-3">Tweet</button>
                 </form>
             </div>
 }

@@ -8,7 +8,7 @@ from .forms import ProfileForm
 
 def profile_update_view(request, *args, **kwargs):
     if not request.user.is_authenticated: 
-        return redirect("/login?next=/profile/update")
+        return redirect("/accounts/login")
     user = request.user
     user_data = {
         "first_name": user.first_name,
@@ -27,7 +27,6 @@ def profile_update_view(request, *args, **kwargs):
         user.email = email
         user.save()
         profile_obj.save()
-        return redirect("/")
     context = {
         "form": form,
         "btn_lable": "Save",
