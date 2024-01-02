@@ -7,15 +7,17 @@ import { FeedList } from "./feed";
 
 export function TweetsComponent(props){
     const [newTweets, setNewTweets] = useState([])
-    const canTweet = props.canTweet === "false" ? false : true
+    const canTweet = props.canTweet === 'true'
+
     const handleNewTweet = (newTweet) => {
-        let tempNewTweet = [...newTweets]
-        tempNewTweet.unshift(newTweet)
-        setNewTweets(newTweet)
+        let tempNewTweets = [...newTweets]
+        tempNewTweets.unshift(newTweet)
+        setNewTweets(tempNewTweets)
     }
+
     return <div className={props.className}>
-                {canTweet === true && <TweetCreate didTweet={handleNewTweet} className="col-lg-8 mx-auto pt-4 mb-3" />}
-                <TweetsList newTweets={newTweets} {...props}/>
+                {canTweet && <TweetCreate didTweet={handleNewTweet} className="col-lg-8 col-md-8 col-sm-8 mx-auto pt-4 mb-3" />}
+                <TweetsList newTweets={newTweets} didRetweet={handleNewTweet} canTweet={props.canTweet}/>
             </div>
 }
 
@@ -35,14 +37,16 @@ export function FeedComponent(props){
 
 export function TweetDetailComponent(props){    
     const {tweetId} = props
-    console.log(props.className)
     const [didLookup, setDidLookup] = useState(false)
     const [tweet, setTweet] = useState(null)
+
+    const className = props.className ? props.className : "my-5 col-lg-10 mx-auto col-md-8 py-5 border border-secondary rounded-5 text-white"
+
     const handleBackendLookup = (response, status) => {
         if (status === 200){
             setTweet(response)
         } else {
-            alert("There was an error finding the tweet.")
+            alert(`There was an error during showing the tweet! status code: ${status}`)
         }
     }
     useEffect(() => {
@@ -51,6 +55,6 @@ export function TweetDetailComponent(props){
             setDidLookup(true)
         }
     }, [tweetId, didLookup, setDidLookup])
-    return tweet === null ? null : <Tweet tweet={tweet} className={props.className} /> 
+    console.log('here')
+    return tweet ? <Tweet tweet={tweet} className={className} /> : null 
 }
-

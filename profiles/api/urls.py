@@ -1,9 +1,9 @@
 from django.urls import path
-from . import views
+from profiles.api import views
 
 '''
 CLIENT
-Base ENDPOINT /api/profiles/
+Base ENDPOINT /api/v1/profiles/
 '''
 
 urlpatterns = [

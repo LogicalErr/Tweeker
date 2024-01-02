@@ -1,99 +1,132 @@
-from django.conf import settings
-from ..models import Tweet
-from .serializers import (
+from tweets.models import Tweet
+from tweets.api.serializers import (
     TweetSerializer, 
     TweetActionSerializer,
     TweetCreateSerializer,
 )
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
+from rest_framework import status 
+from rest_framework.views import APIView
 
-# Create your views here.
 
-ALLOWED_HOSTS = settings.ALLOWED_HOSTS
+class TweetDetailView(APIView):
+    def get(self, request, tweet_id):
+        try:
+            tweet = Tweet.objects.get(id=tweet_id)
+        except Tweet.DoesNotExist:
+            return Response({"message": "Tweet not found"}, status=status.HTTP_404_NOT_FOUND)
 
-@api_view(["GET"])
-def tweet_detail_view(request, tweet_id, *args, **kwargs):
-    try:
-        obj = Tweet.objects.get(id=tweet_id) 
-    except:
-        obj = None
-    if not obj:
-        return Response({"message":"Tweet not found"}, status=404)
-    serializer = TweetSerializer(obj)
-    return Response(serializer.data)
+        serializer = TweetSerializer(tweet)
+        return Response(serializer.data)
 
-@api_view(["GET"])
-def tweet_list_view(request, *args, **kwargs):
-    queryset = Tweet.objects.all()
-    username = request.GET.get('username')
-    if username:
-        queryset = queryset.by_username(username)
-    return get_paginated_queryset_response(queryset, request)
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def tweet_create_view(request, *args, **kwargs):
-    data = request.data
-    serializer = TweetCreateSerializer(data= data)
-    if serializer.is_valid(raise_exception=True):
-        serializer.save(user = request.user)
-        return Response(serializer.data, status=201)
-    return Response({}, status=400)
+class TweetsListView(APIView):
 
-@api_view(["DELETE", "POST"])
-@permission_classes([IsAuthenticated])
-def tweet_delete_view(request, tweet_id, *args, **kwargs):
-    obj = Tweet.objects.get(pk=tweet_id) or None
-    if not obj:
-        return Response({"message":"Tweet not found!"}, status=404)
-    elif request.user != obj.user:
-        return Response({"message": "You don't have permission to delete this tweet"}, status=401)
-    obj.delete()
-    return Response({}, status=204)
+    def get(self, request):
+        username = request.query_params.get('username')
+        if username:
+            tweets = Tweet.objects.filter(user__username=username)
+        else:
+            tweets = Tweet.objects.all()
+        return get_paginated_queryset_response(tweets, request)
 
-@api_view(["POST"])
-@permission_classes([IsAuthenticated])
-def tweet_action_view(request, *args, **kwargs):
-    '''
-        actions are: like, unlike, retweet
-    '''
-    serializer = TweetActionSerializer(data=request.data)
-    if serializer.is_valid(raise_exception=True):
-        data = serializer.validated_data
-        tweet_id = data.get("id")
-        action = data.get("action")
-        content = data.get("content")
-        obj = Tweet.objects.get(pk=tweet_id) or None
-        if not obj:
-            return Response({"Tweet not found!"}, status=404)
-        if action == "like":
-            obj.likes.add(request.user)
-            serializer = TweetSerializer(obj)
-            return Response(serializer.data, status=200)
-        elif action == "unlike":
-            obj.likes.remove(request.user)
-            serializer = TweetSerializer(obj)
-            return Response(serializer.data, status=200)            
-        elif action == "retweet":
-            parent_obj = obj
-            new_tweet = Tweet.objects.create(user=request.user, parent=parent_obj, content=content)
-            serializer = TweetSerializer(new_tweet)
-            return Response(serializer.data, status=201)
-        return Response({"action is succesfully done."}, status=200)
+
+class TweetCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        data = request.data
+        serializer = TweetCreateSerializer(data=data)
+
+        if serializer.is_valid(raise_exception=True):
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TweetDeleteView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, tweet_id):
+        try:
+            tweet = Tweet.objects.get(id=tweet_id)
+        except Tweet.DoesNotExist:
+            return Response({"message": "tweet not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        if request.user != tweet.user:  # TODO should have a custom permission for this
+            return Response({"message": "You are not allowed to delete this tweet"},
+                            status=status.HTTP_401_UNAUTHORIZED)
+
+        tweet.delete()
+        return Response({}, status=status.HTTP_204_NO_CONTENT)
+
+
+class TweetActionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @staticmethod
+    def like_action(tweet, user):
+        tweet.likes.add(user)
+        serializer = TweetSerializer(tweet)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @staticmethod
+    def unlike_action(tweet, user):
+        tweet.likes.remove(user)
+        serializer = TweetSerializer(tweet)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @staticmethod
+    def retweet_action(tweet, user, content):
+        if tweet.is_retweet:
+            parent_tweet = tweet.parent
+        else:
+            parent_tweet = tweet
+        new_tweet = Tweet.objects.create(user=user, parent=parent_tweet, content=content)
+        serializer = TweetSerializer(new_tweet)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def post(self, request):
+        serializer = TweetActionSerializer(data=request.data)
+
+        if serializer.is_valid():
+            data = serializer.validated_data
+
+            user = request.user
+            tweet_id: int = data.get("id")
+            action: str = data.get("action")
+            content: str = data.get("content")
+
+            try:
+                tweet = Tweet.objects.get(pk=tweet_id)
+            except Tweet.DoesNotExist:
+                return Response({"message": "Tweet not found"}, status=status.HTTP_404_NOT_FOUND)
+
+            match action.lower():
+                case "like":
+                    return self.like_action(tweet, user)
+                case "unlike":
+                    return self.unlike_action(tweet, user)
+                case "retweet":
+                    return self.retweet_action(tweet, user, content)
+        else:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
 
 def get_paginated_queryset_response(queryset, request):
     paginator = PageNumberPagination()
-    paginator.page_size = 10
+    paginator.page_size = 20
     paginate_qs = paginator.paginate_queryset(queryset, request)
-    serializer = TweetSerializer(paginate_qs, many=True, context={"request":request})
+    serializer = TweetSerializer(paginate_qs, many=True, context={"request": request})
     return paginator.get_paginated_response(serializer.data)
 
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def tweet_feed_view(request, *args, **kwargs):
-    user = request.user
-    queryset = Tweet.objects.feed(user)
-    return get_paginated_queryset_response(queryset, request)
+
+class TweetFeedView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        tweets = Tweet.objects.feed(user)
+        return get_paginated_queryset_response(tweets, request)

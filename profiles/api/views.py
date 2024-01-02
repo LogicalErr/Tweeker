@@ -1,33 +1,30 @@
-from django.conf import settings
-from ..models import Profile
+from profiles.models import Profile
 from rest_framework.response import Response
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth.models import User
-from ..serializers import PublicProfileSerializer
-# Create your views here.
+from rest_framework.decorators import api_view
+from profiles.serializers import PublicProfileSerializer
+from rest_framework import status
 
-ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
 @api_view(["GET", "POST"])
 def profile_detail_api_view(request, username, *args, **kwargs):
-    qs = Profile.objects.filter(user__username = username)
-    if not qs.exists():
-        return Response({"detail": "User not found"}, status=404)
-    profile_obj = qs.first()
+    try:
+        profile_obj = Profile.objects.get(user__username=username)
+    except Profile.DoesNotExist:
+        return Response({"detail": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
     data = request.data or None
+
     if request.method == "POST":
-        me = request.user
-        action = data.get("action")
-        if profile_obj.user != me:
-            if action == "follow":
-                profile_obj.followers.add(me)
-            elif action == "unfollow": 
-                profile_obj.followers.remove(me)
-            else:
-                pass
-    serializer = PublicProfileSerializer(instance = profile_obj, context={"request": request})
-    return Response(serializer.data, status=200)
+        user = request.user
+        action = data.get("action", None)
+        if profile_obj.user != user:
+            if action is not None:
+                if action == "follow":
+                    profile_obj.followers.add(user)
+                elif action == "unfollow":
+                    profile_obj.followers.remove(user)
+    serializer = PublicProfileSerializer(instance=profile_obj, context={"request": request})
+    return Response(serializer.data, status=status.HTTP_200_OK)
 
 # @api_view(["GET", "POST"])
 # @permission_classes([IsAuthenticated])
@@ -59,4 +56,3 @@ def profile_detail_api_view(request, username, *args, **kwargs):
 #         profile.followers.add(me)
 #     data = PublicProfileSerializer(instance = profile, context={"request": request})
 #     return Response(data.data, status=200)
-

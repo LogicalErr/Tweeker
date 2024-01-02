@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+    db:
+        image: mysql:8.2.0
+        ports:
+            - "3306:3306"
+        command: --default-authentication-plugin=mysql_native_password
+        restart: always
+        environment:
+            MYSQL_USER: admin
+            MYSQL_PASSWORD: password
+            MYSQL_DATABASE: tweeker
+            MYSQL_ROOT_PASSWORD: password
+
+    db_admin:
+        image: phpmyadmin:5.2.1
+        ports:
+            - "8080:80"
+        restart: always
+        depends_on:
+            - db
+        links:
+            - db
+        environment:
+            PMA_HOST: db
+            PMA_PORT: 3306
+            PMA_USER: admin
+            PMA_PASSWORD: password

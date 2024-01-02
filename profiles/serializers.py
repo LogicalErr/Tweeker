@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Profile
 
+
 class PublicProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.SerializerMethodField(read_only=True)
     last_name = serializers.SerializerMethodField(read_only=True)
@@ -8,39 +9,43 @@ class PublicProfileSerializer(serializers.ModelSerializer):
     username = serializers.SerializerMethodField(read_only=True)
     follower_count = serializers.SerializerMethodField(read_only=True)
     following_count = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Profile
         fields = [
+            "id",
+            "username",
             "first_name",
             "last_name",
-            "id",
             "bio",
             "location",
             "follower_count",
             "following_count",
-            "is_following",
-            "username"
+            "is_following"
         ]
+
     def get_is_following(self, obj):
         context = self.context
         request = context.get("request")
-        is_following = False
-        if request:
-            user = request.user
-            is_following = user in obj.followers.all()
+        is_following = True if request.user in obj.followers.all() else False
         return is_following
-        
-    def get_first_name(self, obj):
+
+    @staticmethod
+    def get_first_name(obj):
         return obj.user.first_name
-    
-    def get_last_name(self, obj):
+
+    @staticmethod
+    def get_last_name(obj):
         return obj.user.last_name
-    
-    def get_username(self, obj):
+
+    @staticmethod
+    def get_username(obj):
         return obj.user.username
-    
-    def get_follower_count(self, obj):
+
+    @staticmethod
+    def get_follower_count(obj):
         return obj.followers.count()
-    
-    def get_following_count(self, obj):
+
+    @staticmethod
+    def get_following_count(obj):
         return obj.user.following.count()
