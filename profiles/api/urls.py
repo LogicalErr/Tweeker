@@ -7,6 +7,8 @@ Base ENDPOINT /api/v1/profiles/
 '''
 
 urlpatterns = [
-    path("<str:username>", views.profile_detail_api_view),
-    path("<str:username>/follow", views.profile_detail_api_view),
+    path("edit/", views.EditProfileView.as_view()),
+    path("<str:username>/", views.ProfileDetailView.as_view()),
+    path("<str:username>/follow", views.ProfileDetailView.as_view()),
+    
 ]

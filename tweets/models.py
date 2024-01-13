@@ -55,5 +55,5 @@ class Tweet(models.Model):
     def is_retweet(self):
         return self.parent is not None
 
-    #def __str__(self):
+    # def __str__(self):
     #    return self.content

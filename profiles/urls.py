@@ -1,7 +1,6 @@
-from django.urls import path
-from profiles import views
+from django.urls import path, include
+
 
 urlpatterns = [
-    path("edit", views.profile_update_view, name="user_update_profile_view"),
-    path("<str:username>", views.profile_detail_view, name="user_profile_view")
+    path("api/v1/profiles/", include("profiles.api.urls")),
 ]

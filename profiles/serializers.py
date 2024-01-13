@@ -1,12 +1,25 @@
 from rest_framework import serializers
 from .models import Profile
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth.models import User
+
+
+class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        token['username'] = user.username
+
+        return token
 
 
 class PublicProfileSerializer(serializers.ModelSerializer):
-    first_name = serializers.SerializerMethodField(read_only=True)
-    last_name = serializers.SerializerMethodField(read_only=True)
+    first_name = serializers.CharField(source='user.first_name')
+    last_name = serializers.CharField(source='user.last_name')
+    username = serializers.CharField(source='user.username')
+
     is_following = serializers.SerializerMethodField(read_only=True)
-    username = serializers.SerializerMethodField(read_only=True)
     follower_count = serializers.SerializerMethodField(read_only=True)
     following_count = serializers.SerializerMethodField(read_only=True)
 
@@ -26,21 +39,10 @@ class PublicProfileSerializer(serializers.ModelSerializer):
 
     def get_is_following(self, obj):
         context = self.context
-        request = context.get("request")
-        is_following = True if request.user in obj.followers.all() else False
+        request = context.get("request") or None
+        user = request.user or None
+        is_following = True if user in obj.followers.all() else False
         return is_following
-
-    @staticmethod
-    def get_first_name(obj):
-        return obj.user.first_name
-
-    @staticmethod
-    def get_last_name(obj):
-        return obj.user.last_name
-
-    @staticmethod
-    def get_username(obj):
-        return obj.user.username
 
     @staticmethod
     def get_follower_count(obj):
@@ -49,3 +51,27 @@ class PublicProfileSerializer(serializers.ModelSerializer):
     @staticmethod
     def get_following_count(obj):
         return obj.user.following.count()
+
+
+# TODO i need to fix edit profile fixture
+class EditUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+
+
+class EditProfileSerializer(serializers.ModelSerializer):
+    first_name = serializers.CharField(source='user.first_name', required=False)
+    last_name = serializers.CharField(source='user.last_name', required=False)
+    email = serializers.EmailField(source='user.email', required=False)
+
+    class Meta:
+        model = Profile
+        fields = [
+            "first_name",
+            "last_name",
+            "email",
+            "bio",
+            "location",
+        ]
+

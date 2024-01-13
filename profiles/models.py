@@ -19,8 +19,8 @@ class Profile(models.Model):
     updated = models.DateTimeField(auto_now=True)
     followers = models.ManyToManyField(User, related_name="following", blank=True)
     
-    # def __str__(self) -> str:
-    #     return self.user.username
+    def __str__(self) -> str:
+        return self.user.username
 
 
 def user_did_save(sender, instance, created, *args, **kwargs):
@@ -29,3 +29,4 @@ def user_did_save(sender, instance, created, *args, **kwargs):
 
 
 post_save.connect(user_did_save, sender=User)
+
