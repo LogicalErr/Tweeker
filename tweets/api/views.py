@@ -11,16 +11,16 @@ from rest_framework import status
 from rest_framework.views import APIView
 from tweets import cache_keys
 from django.core.cache import cache
+from tweets.cache import TweetsListCache, TweetDetailCache
 
 
 class TweetsListView(APIView):
     @staticmethod
     def get(request):
-        cache_key = cache_keys.WEB_TWEETS_LIST_CACHE_KEY
-        tweets = cache.get(cache_key)
-        if not tweets:
+        tweets = TweetsListCache.get_tweets_list()
+        if tweets is None:
             tweets = Tweet.objects.all()
-            cache.set(cache_key, tweets)
+            TweetsListCache.set_tweets_list(tweets)
         username = request.query_params.get('username')
         if username:
             tweets = tweets.filter(user__username=username)
@@ -32,47 +32,32 @@ class TweetDetailView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     @staticmethod
-    def get_tweet_object(tweet_id):
-        cache_key = cache_keys.WEB_TWEET_DETAIL_CACHE_KEY.format(tweet_id=tweet_id)
-        tweet = cache.get(cache_key)
-        if not tweet:
+    def get(request, tweet_id):
+        tweet = TweetDetailCache.get_tweet(tweet_id)
+        if tweet is None:
             try:
                 tweet = Tweet.objects.get(id=tweet_id)
-                cache.set(cache_key, tweet)
+                TweetDetailCache.set_tweet(tweet)
             except Tweet.DoesNotExist:
-                tweet = None
-        return tweet
-
-    @staticmethod
-    def remove_tweet(tweet):
-        tweets_list_cache_key = cache_keys.WEB_TWEETS_LIST_CACHE_KEY
-        tweets_list = cache.get(tweets_list_cache_key)
-
-        if tweets_list is not None:  # remove tweet from cache also
-            tweets_list = tweets_list.exclude(id=tweet.id)
-            cache.set(tweets_list_cache_key, tweets_list)
-
-        cache.delete(cache_keys.WEB_TWEET_DETAIL_CACHE_KEY.format(tweet_id=tweet.id))
-
-        tweet.delete()
-
-    def get(self, request, tweet_id):
-        tweet = self.get_tweet_object(tweet_id)
-        if tweet is None:
-            return Response({"detail": "The tweet your looking for didn't found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response({"detail": "Tweet didn't found!"}, status=status.HTTP_404_NOT_FOUND)
         serializer = TweetSerializer(tweet)
         return Response(serializer.data)
 
-    def delete(self, request, tweet_id):
-        tweet = self.get_tweet_object(tweet_id)
+    @staticmethod
+    def delete(request, tweet_id):
+        tweet = TweetDetailCache.get_tweet(tweet_id)
         if tweet is None:
-            return Response({"detail": "The tweet your looking for didn't found"}, status=status.HTTP_404_NOT_FOUND)
+            try:
+                tweet = Tweet.objects.get(id=tweet_id)
+            except Tweet.DoesNotExist:
+                return Response({"detail": "Tweet didn't found!"}, status=status.HTTP_404_NOT_FOUND)
 
         if request.user != tweet.user:  # TODO should have a custom permission for this
-            return Response({"detail": "You don't have permission to remove this tweet"},
+            return Response({"detail": "You don't have permission to remove this tweet!"},
                             status=status.HTTP_401_UNAUTHORIZED)
 
-        self.remove_tweet(tweet)
+        TweetDetailCache.delete_tweet(tweet)
+        tweet.delete()
         return Response({}, status=status.HTTP_204_NO_CONTENT)
 
 
