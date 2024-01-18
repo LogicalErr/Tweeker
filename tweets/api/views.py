@@ -9,9 +9,7 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status 
 from rest_framework.views import APIView
-from tweets import cache_keys
-from django.core.cache import cache
-from tweets.cache import TweetsListCache, TweetDetailCache
+from tweets.cache import TweetsListCache, TweetDetailCache, TweetCreateCache
 
 
 class TweetsListView(APIView):
@@ -75,7 +73,8 @@ class TweetCreateView(APIView):
         serializer = TweetCreateSerializer(data=data)
 
         if serializer.is_valid(raise_exception=True):
-            serializer.save(user=request.user)
+            tweet = serializer.save(user=request.user)
+            TweetCreateCache.set_tweet(tweet)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response({"detail": "Bad request"}, status=status.HTTP_400_BAD_REQUEST)
 
