@@ -4,6 +4,8 @@ from profiles.serializers import PublicProfileSerializer, EditProfileSerializer
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from django.core.cache import cache
+from profiles import cache_keys
 
 
 class EditProfileView(APIView):
@@ -31,34 +33,43 @@ class ProfileDetailView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     @staticmethod
-    def get(request, username):
-        try:
-            profile_obj = Profile.objects.get(user__username=username)
-        except Profile.DoesNotExist:
-            return Response({"detail": "The user profile you're looking for didn't found"},
+    def get_profile_object(username):
+        cache_key = cache_keys.WEB_PROFILE_DETAIL_CACHE_KEY.format(username=username)
+        profile_obj = cache.get(cache_key)
+        if not profile_obj:
+            try:
+                profile_obj = Profile.objects.get(user__username=username)
+                cache.set(cache_key, profile_obj)
+            except Profile.DoesNotExist:
+                profile_obj = None
+        return profile_obj
+
+    def get(self, request, username):
+        profile_obj = self.get_profile_object(username)
+        if profile_obj is None:
+            return Response({"detail": "The user profile you're looking for didn't found!"},
                             status=status.HTTP_404_NOT_FOUND)
         serializer = PublicProfileSerializer(instance=profile_obj, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    @staticmethod
-    def post(request, username):
-        try:
-            profile_obj = Profile.objects.get(user__username=username)
-        except Profile.DoesNotExist:
-            return Response({"detail": "The user profile you're looking for didn't found"},
+    def post(self, request, username):
+        profile_obj = self.get_profile_object(username)
+        if profile_obj is None:
+            return Response({"detail": "The user profile you're looking for didn't found!"},
                             status=status.HTTP_404_NOT_FOUND)
 
-        data = request.data or {}
-        user = request.user
-        action = data.get("action", None)
-        if profile_obj.user != user:
+        request_data = request.data or {}
+        request_user = request.user
+        action = request_data.get("action", None)
+        if profile_obj.user != request_user:
             if action:
                 if action.lower() == "follow":
-                    profile_obj.followers.add(user.id)
+                    profile_obj.followers.add(request_user.id)
                 elif action.lower() == "unfollow":
-                    profile_obj.followers.remove(user)
+                    profile_obj.followers.remove(request_user)
             else:
-                return Response({"detail": "Action parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"action": [
+                    "This field is required."]}, status=status.HTTP_400_BAD_REQUEST)
 
         serializer = PublicProfileSerializer(instance=profile_obj, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
