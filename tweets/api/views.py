@@ -9,16 +9,22 @@ from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnl
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import status 
 from rest_framework.views import APIView
+from tweets import cache_keys
+from django.core.cache import cache
 
 
 class TweetsListView(APIView):
     @staticmethod
     def get(request):
+        cache_key = cache_keys.WEB_TWEETS_LIST_CACHE_KEY
+        tweets = cache.get(cache_key)
+        if not tweets:
+            tweets = Tweet.objects.all()
+            cache.set(cache_key, tweets)
         username = request.query_params.get('username')
         if username:
-            tweets = Tweet.objects.filter(user__username=username)
-        else:
-            tweets = Tweet.objects.all()
+            tweets = tweets.filter(user__username=username)
+
         return get_paginated_queryset_response(tweets, request)
 
 
