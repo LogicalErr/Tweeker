@@ -74,4 +74,3 @@ class EditProfileSerializer(serializers.ModelSerializer):
             "bio",
             "location",
         ]
-
