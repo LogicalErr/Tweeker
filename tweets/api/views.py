@@ -23,7 +23,9 @@ class TweetsListView(APIView):
         if username:
             tweets = tweets.filter(user__username=username)
 
-        return get_paginated_queryset_response(tweets, request)
+        return get_paginated_queryset_response(tweets, request)  # TODO in this way all tweets receives from database
+        # and then paginated them in response, but I should just receive a certain number of tweets and return them
+        # in response
 
 
 class TweetDetailView(APIView):

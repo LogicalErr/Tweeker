@@ -52,3 +52,4 @@ class TweetCreateCache:
     @staticmethod
     def set_tweet(tweet):
         TweetsListCache.add_tweet_to_list(tweet)
+        TweetDetailCache.set_tweet(tweet)
