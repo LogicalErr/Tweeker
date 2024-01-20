@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from django.core.cache import cache
 from profiles import cache_keys
+from profiles.cache import ProfileDetailCache
 
 
 class EditProfileView(APIView):
@@ -33,30 +34,27 @@ class ProfileDetailView(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     @staticmethod
-    def get_profile_object(username):
-        cache_key = cache_keys.WEB_PROFILE_DETAIL_CACHE_KEY.format(username=username)
-        profile_obj = cache.get(cache_key)
-        if not profile_obj:
+    def get(request, username):
+        profile_obj = ProfileDetailCache.get_profile(username)
+        if profile_obj is None:
             try:
                 profile_obj = Profile.objects.get(user__username=username)
-                cache.set(cache_key, profile_obj)
+                ProfileDetailCache.set_profile(username, profile_obj)
             except Profile.DoesNotExist:
-                profile_obj = None
-        return profile_obj
-
-    def get(self, request, username):
-        profile_obj = self.get_profile_object(username)
-        if profile_obj is None:
-            return Response({"detail": "The user profile you're looking for didn't found!"},
-                            status=status.HTTP_404_NOT_FOUND)
+                return Response({"detail": "User profile didn't found!"}, status=status.HTTP_404_NOT_FOUND)
         serializer = PublicProfileSerializer(instance=profile_obj, context={"request": request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def post(self, request, username):
-        profile_obj = self.get_profile_object(username)
+    @staticmethod
+    def post(request, username):
+        # profile_obj = self.get_profile_object(username)
+        profile_obj = ProfileDetailCache.get_profile(username)
         if profile_obj is None:
-            return Response({"detail": "The user profile you're looking for didn't found!"},
-                            status=status.HTTP_404_NOT_FOUND)
+            try:
+                profile_obj = Profile.objects.get(user__username=username)
+                ProfileDetailCache.set_profile(username, profile_obj)
+            except Profile.DoesNotExist:
+                return Response({"detail": "User profile didn't found!"}, status=status.HTTP_404_NOT_FOUND)
 
         request_data = request.data or {}
         request_user = request.user
