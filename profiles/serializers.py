@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import Profile
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.contrib.auth.models import User
 
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -53,13 +52,6 @@ class PublicProfileSerializer(serializers.ModelSerializer):
         return obj.user.following.count()
 
 
-# TODO i need to fix edit profile fixture
-class EditUserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email']
-
-
 class EditProfileSerializer(serializers.ModelSerializer):
     first_name = serializers.CharField(source='user.first_name', required=False)
     last_name = serializers.CharField(source='user.last_name', required=False)
@@ -74,3 +66,11 @@ class EditProfileSerializer(serializers.ModelSerializer):
             "bio",
             "location",
         ]
+
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop("user", None)
+        if user_data:
+            for attr, value in user_data.items():
+                setattr(instance.user, attr, value)
+            instance.user.save()
+        return super().update(instance, validated_data)
