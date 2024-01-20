@@ -103,6 +103,7 @@ class TweetActionView(APIView):
         else:
             parent_tweet = tweet
         new_tweet = Tweet.objects.create(user=user, parent=parent_tweet, content=content)
+        TweetCreateCache.set_tweet(new_tweet)
         serializer = TweetSerializer(new_tweet)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
