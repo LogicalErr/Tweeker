@@ -44,7 +44,7 @@ export const AuthProvider = ({children}) => {
         setAuthTokens(null)
         setUser(null)
         localStorage.removeItem('authTokens')
-        navigate('/')
+        navigate('/login')
     }
 
     const updateToken = () => {
@@ -70,16 +70,16 @@ export const AuthProvider = ({children}) => {
                 const status = error.response.status
                 if (status === 401){
                     console.log('Token is invalid or expired.')
-                    logoutUser()
+                    alert('Token is invalid or expired.')
                 } else {
                     console.log(`Something went wrong during updating token. Status code: ${status}`)
-                    logoutUser()
+                    alert(`Something went wrong during updating token. Status code: ${status}`)
                 }
                 logoutUser()
             })
         }
 
-        if(isLoading){
+        if (isLoading) {
             setIsLoading(false)
         }
     }

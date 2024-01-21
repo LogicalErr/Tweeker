@@ -16,10 +16,10 @@ const Header = () => {
       <span className='text-secondary'>|</span>
       {user ? 
         <div className='auth-user'>
-          <Link className={linkClassName} to="/logout">Logout</Link>
-          <span className='text-secondary'>|</span>
-          {/*<Link className={linkClassName} to="/profiles/edit">Edit profile</Link>*/}
-          {/*<Link className={linkClassName} to="/profiles">Profile</Link>*/}
+            <Link className={linkClassName} to="/profiles/edit">Profile</Link>
+            <span className='text-secondary'>|</span>
+            <Link className={linkClassName} to="/logout">Logout</Link>
+            {/*<Link className={linkClassName} to="/profiles">Profile</Link>*/}
         </div> :
         <Link className={linkClassName} to="/login">Login</Link>}
     </nav>

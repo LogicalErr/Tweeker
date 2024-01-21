@@ -23,14 +23,14 @@ export default function ProfileEdit() {
                 const status = response.status
                 if (status === 200) {
                     setProfile(data)
+                    setProfileDidSet(true)
                 }
             })
             .catch(error => {
                 const response = error.response
                 console.log(response)
-                alert(`${response.data.content}! status code: ${response.status}`)
+                alert(`Something wend wrong while fetching your profile detail! status code: ${response.status}`)
             })
-            setProfileDidSet(true)
         }
     }, [profileDidSet, authTokens])
 
@@ -44,27 +44,26 @@ export default function ProfileEdit() {
             "email": e.target.email.value,
             "bio": e.target.bio.value,
         })
-        console.log(body)
-        alert("profile updated")
-        // axios.put(`http://localhost:8000/api/v1/profiles/edit/`, body, {
-        //         'headers':{
-        //             'Content-Type':'application/json',
-        //             'Authorization':'Bearer ' + String(authTokens.access)
-        //         }
-        //     })
-        //     .then(response => {
-        //         const data = response.data
-        //         const status = response.status
-        //         console.log(data, status)
-        //         if (status === 200) {
-        //             setProfile(data)
-        //         }
-        //     })
-        //     .catch(error => {
-        //         const response = error.response
-        //         console.log(response)
-        //         alert(`${response.data.content}! status code: ${response.status}`)
-        //     })
+        axios.put(`http://localhost:8000/api/v1/profiles/edit/`, body, {
+                'headers':{
+                    'Content-Type':'application/json',
+                    'Authorization':'Bearer ' + String(authTokens.access)
+                }
+            })
+            .then(response => {
+                const data = response.data
+                const status = response.status
+                console.log(data, status)
+                if (status === 200) {
+                    setProfile(data)
+                    alert("profile updated")
+                }
+            })
+            .catch(error => {
+                const response = error.response
+                console.log(response)
+                alert(`Something went wrong with updating your profile, please try again later! status code: ${response.status}`)
+            })
     }
 
     return (
