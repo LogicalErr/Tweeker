@@ -11,7 +11,7 @@ const Header = () => {
 
   return (
     <nav className={className}>
-      <Link className='text-light mx-5 pb-2 text-decoration-none display-6' >Tweeker</Link>
+      <Link className='text-light mx-5 pb-2 text-decoration-none display-6' to="#">Tweeker</Link>
       <Link className={linkClassName} to="/">Home</Link>
       <span className='text-secondary'>|</span>
       {user ? 
@@ -19,7 +19,6 @@ const Header = () => {
             <Link className={linkClassName} to="/profiles/edit">Profile</Link>
             <span className='text-secondary'>|</span>
             <Link className={linkClassName} to="/logout">Logout</Link>
-            {/*<Link className={linkClassName} to="/profiles">Profile</Link>*/}
         </div> :
         <Link className={linkClassName} to="/login">Login</Link>}
     </nav>

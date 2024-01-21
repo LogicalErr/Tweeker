@@ -1,6 +1,7 @@
 from django.core.cache import cache
 from tweets import cache_keys
-from itertools import chain
+from tweets.models import Tweet
+from django.db.models import Q
 
 
 class TweetsListCache:
@@ -25,7 +26,7 @@ class TweetsListCache:
     @staticmethod
     def add_tweet_to_list(tweet):
         tweets_list = TweetsListCache.get_tweets_list()
-        new_tweets_list = list(chain([tweet], tweets_list))
+        new_tweets_list = Tweet.objects.filter(Q(pk=tweet.pk) | Q(pk__in=tweets_list.values('pk'))).distinct()
         TweetsListCache.set_tweets_list(new_tweets_list)
 
 
