@@ -15,7 +15,6 @@ import SignUpPage from './pages/SignUpPage';
 import { AuthProvider } from './context/AuthContext';
 import LogoutPage from './pages/LogoutPage';
 import PrivateRoute from './utils/PrivateRoute'
-import MyProfile from "./pages/MyProfile";
 
 
 function App() {
@@ -36,10 +35,6 @@ function App() {
 
             <Route path='/logout' element={<PrivateRoute />}>
               <Route Component={LogoutPage} path='/logout' />
-            </Route>
-
-            <Route path='/profiles' element={<PrivateRoute />}>
-              <Route Component={MyProfile} path='/profiles' />
             </Route>
 
             <Route Component={SignUpPage} path='/signup' />
