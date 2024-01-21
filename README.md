@@ -22,17 +22,23 @@ During the development of this project, Ubuntu Linux was the chosen distribution
     cd Tweeker/
     ```
 
-3. Ensure Docker and Docker Compose are installed. Run the following command to pull and run the specified images from the docker-compose.yaml file:
+3. Set up a Python virtual environment and activate it:
+    ```bash
+    pyhton -m venv venv
+    source venv/bin/activate
+    ```
+
+4. Ensure Docker and Docker Compose are installed. Run the following command to pull and run the specified images from the docker-compose.yaml file:
     ```bash
     docker compose up -d
     ```
 
-4. Install the required Python packages:
+5. Install the required Python packages:
     ```bash
     pip install -r requirements.txt
     ```
 
-5. Run the project on your local machine:
+6. Run the project on your local machine:
     ```bash
     python manage.py migrate
     python manage.py runserver
