@@ -10,13 +10,14 @@ import DisplayCount from '../components/DisplayCount'
 
 function ProfileBadge(props) {
     const { user } = useContext(AuthContext)
+    const { authTokens } = useContext(AuthContext)
     const { profile, didFollowToggle } = props
     const currentVerb = profile.is_following ? "Unfollow" : "Follow"
 
     const handleFollowToggle = (event) => {
         event.preventDefault()
         if (didFollowToggle) {
-          didFollowToggle(currentVerb)
+          didFollowToggle(currentVerb, authTokens)
         }
     }
 
@@ -66,9 +67,15 @@ export default function Profile() {
       }
   }, [username, didLookup, setDidLookup])
 
-  const handleNewFollow = (actionVerb) => {
+  const handleNewFollow = (actionVerb, authTokens) => {
       const data = {action: `${actionVerb && actionVerb}`.toLowerCase()}
-      axios.post(`http://localhost:8000/api/v1/profiles/${username}/follow`, data)
+      axios.post(`http://localhost:8000/api/v1/profiles/${username}/follow/`, data,
+          {
+              "headers": {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${authTokens.access}`
+              }
+          })
       .then(response => {
         const data = response.data
         const status = response.status
