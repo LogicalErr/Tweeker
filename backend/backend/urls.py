@@ -8,7 +8,7 @@ urlpatterns = [
     path("auth/", include("djoser.urls")),
     path("auth/", include("djoser.urls.jwt")),
     path("", include(("tweets.urls", "tweets"), namespace="tweets")),
-    path("profiles/", include(("profiles.urls", "profiles"), namespace="profiles")),
+    # path("profiles/", include(("profiles.urls", "profiles"), namespace="profiles")),
     path("api/v1/profiles/", include("profiles.api.urls")),
 ]
 
